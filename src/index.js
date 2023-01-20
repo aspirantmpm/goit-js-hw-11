@@ -1,27 +1,37 @@
 import Notiflix from 'notiflix';
-const axios = require('axios').default;
+import axios from 'axios';
 
 console.log(axios);
 
-function fetchImg(name) {
-  const BASE_URL = 'https://pixabay.com/api/';
-  const keyApi = '32959525-8b9ed50037adb2599dd065ad6';
-  const properties = [
-    'name',
-    'webformatURL',
-    'largeImageURL',
-    'tags',
-    'likes',
-    'views',
-    'comments',
-    'downloads',
-  ];
-  return fetch(`${BASE_URL}?${keyApi}=${properties.join(',')}`).then(resp => {
-    if (!resp.ok) {
-      throw new Error(resp.statusText);
-    }
+const searchForm = document.querySelector('#search-form');
+searchForm.addEventListener('submit', onSearch);
 
-    return resp.json();
-  });
+function onSearch(evt) {
+  evt.preventDefault();
+  const searchImg = evt.target.elements.searchQuery.value.trim();
+  console.log(searchImg);
+  async function fetchImg() {
+    const BASE_URL = 'https://pixabay.com/api/';
+    const keyApi = '32959525-8b9ed50037adb2599dd065ad6';
+    const imageType = 'photo';
+    const orientationType = 'horizontal';
+    const safeSearch = 'true';
+    const response = await axios.get(
+      `${BASE_URL}?key=${keyApi}&q=${searchImg}&image_type=${imageType}&orientation=${orientationType}&safesearch=${safeSearch}}`
+    );
+
+    // if (!response.ok) {
+    //   throw new Error(response.statusText);
+    // }
+    // const data = await response.json();
+    // //
+    //   return data;
+    console.log(response);
+  }
+  fetchImg();
+  // .then(resp => console.log(resp))
+  // .catch(err => console.log(err));
+  // return searchImg;
 }
-console.log(fetchImg);
+
+// const search = 'dog';
