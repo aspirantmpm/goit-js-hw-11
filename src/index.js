@@ -1,7 +1,11 @@
+import './css/styles.css';
 import Notiflix from 'notiflix';
 import axios from 'axios';
+// import SimpleLightbox from 'simplelightbox';
+// import 'simplelightbox/dist/simple-lightbox.min.css';
 
-console.log(axios);
+// console.log(SimpleLightbox);
+// console.log(axios);
 
 const searchForm = document.querySelector('#search-form');
 const gallery = document.querySelector('.gallery');
@@ -22,14 +26,12 @@ function onSearch(evt) {
       `${BASE_URL}?key=${keyApi}&q=${searchImg}&image_type=${imageType}&orientation=${orientationType}&safesearch=${safeSearch}&per_page=${perPage}}`
     );
 
-    // if (!response.ok) {
-    //   throw new Error(response.statusText);
-    // }
-    // const data = await response.json();
-    // //
-    //   return data;
-    console.log(requestArr);
-    // return requestArr;
+    if (requestArr.data.hits.length === 0) {
+      Notiflix.Notify.info(
+        'Sorry, there are no images matching your search query. Please try again.'
+      );
+      return;
+    }
 
     console.log(requestArr);
 
@@ -39,10 +41,36 @@ function onSearch(evt) {
     function createGalleryMarkup(array) {
       return array
         .map(
-          ({ webformatURL, largeImageURL, tags }) =>
-            `<a class="gallery__item" href="${largeImageURL}">
-            <img class="gallery__image" src="${webformatURL}" alt="${tags}" />
-          </a>`
+          ({
+            webformatURL,
+            largeImageURL,
+            tags,
+            likes,
+            views,
+            comments,
+            downloads,
+          }) =>
+            // `<a class="gallery__item" href="${largeImageURL}">
+            `<div class="photo-card">
+                       
+                <img src="${webformatURL}" alt="${tags}" loading="lazy" width="300px";/>
+              
+                <div class="info">
+                  <p class="info-item">
+                    <b>Likes ${likes}</b>
+                  </p>
+                  <p class="info-item">
+                    <b>Views ${views}</b>
+                  </p>
+                  <p class="info-item">
+                    <b>Comments ${comments}</b>
+                  </p>
+                  <p class="info-item">
+                    <b>Downloads ${downloads}</b>
+                  </p>
+                </div>
+            </div>`
+          // </a>`
         )
         .join('');
     }
