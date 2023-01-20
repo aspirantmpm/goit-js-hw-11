@@ -9,6 +9,7 @@ import axios from 'axios';
 
 const searchForm = document.querySelector('#search-form');
 const gallery = document.querySelector('.gallery');
+const button = document.querySelector('.load-more');
 searchForm.addEventListener('submit', onSearch);
 
 function onSearch(evt) {
@@ -21,9 +22,9 @@ function onSearch(evt) {
     const imageType = 'photo';
     const orientationType = 'horizontal';
     const safeSearch = 'true';
-    const perPage = '40';
+    const perPage = '5';
     const requestArr = await axios.get(
-      `${BASE_URL}?key=${keyApi}&q=${searchImg}&image_type=${imageType}&orientation=${orientationType}&safesearch=${safeSearch}&per_page=${perPage}}`
+      `${BASE_URL}?key=${keyApi}&per_page=${perPage}&q=${searchImg}&image_type=${imageType}&orientation=${orientationType}&safesearch=${safeSearch}}`
     );
 
     if (requestArr.data.hits.length === 0) {
