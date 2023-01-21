@@ -27,13 +27,15 @@ function onSearch(evt) {
   const searchImg = evt.target.elements.searchQuery.value.trim();
   console.log(searchImg);
 
-  async function fetchImg(page = 1) {
     const BASE_URL = 'https://pixabay.com/api/';
     const keyApi = '32959525-8b9ed50037adb2599dd065ad6';
     const imageType = 'photo';
     const orientationType = 'horizontal';
     const safeSearch = 'true';
-    const perPage = '40';
+    const perPage = '100';
+
+  async function fetchImg(page = 1) {
+  
     const requestArr = await axios.get(
       `${BASE_URL}?key=${keyApi}&per_page=${perPage}&page=${page}&q=${searchImg}&image_type=${imageType}&orientation=${orientationType}&safesearch=${safeSearch}}`
     );
@@ -86,6 +88,7 @@ function onSearch(evt) {
         )
         .join('');
     }
+    
   }
 
  
@@ -98,10 +101,19 @@ function onSearch(evt) {
   buttonLoadMore.addEventListener('click', onClick);
 
   let page = 1;
+  // let searchHits = 0;
 
   function onClick() {
     page += 1;
+    // searchHits += perPage;
     fetchImg(page);
+    if (page * perPage >= 500) {
+      buttonLoadMore.hidden = true;
+      Notiflix.Notify.info(
+        "We're sorry, but you've reached the end of search results."
+      );
+      return;
+    }
   }
   // .then(resp => console.log(resp))
   // .catch(err => console.log(err));
