@@ -20,22 +20,21 @@ searchForm.addEventListener('submit', onSearch);
 //     fetchImg(page);
 //   }
 
-
-
 function onSearch(evt) {
+  let page = 1;
+  resetSearch(gallery);
   evt.preventDefault();
   const searchImg = evt.target.elements.searchQuery.value.trim();
   console.log(searchImg);
 
-    const BASE_URL = 'https://pixabay.com/api/';
-    const keyApi = '32959525-8b9ed50037adb2599dd065ad6';
-    const imageType = 'photo';
-    const orientationType = 'horizontal';
-    const safeSearch = 'true';
-    const perPage = '100';
+  const BASE_URL = 'https://pixabay.com/api/';
+  const keyApi = '32959525-8b9ed50037adb2599dd065ad6';
+  const imageType = 'photo';
+  const orientationType = 'horizontal';
+  const safeSearch = 'true';
+  const perPage = '40';
 
-  async function fetchImg(page = 1) {
-  
+  async function fetchImg() {
     const requestArr = await axios.get(
       `${BASE_URL}?key=${keyApi}&per_page=${perPage}&page=${page}&q=${searchImg}&image_type=${imageType}&orientation=${orientationType}&safesearch=${safeSearch}}`
     );
@@ -88,19 +87,14 @@ function onSearch(evt) {
         )
         .join('');
     }
-    
   }
 
- 
-
-  fetchImg()
-    .then(data => {
+  fetchImg().then(data => {
     buttonLoadMore.hidden = false;
-    });
-  
+  });
+
   buttonLoadMore.addEventListener('click', onClick);
 
-  let page = 1;
   // let searchHits = 0;
 
   function onClick() {
@@ -112,10 +106,20 @@ function onSearch(evt) {
       Notiflix.Notify.info(
         "We're sorry, but you've reached the end of search results."
       );
+
       return;
     }
   }
+  // resetSearch(gallery);
   // .then(resp => console.log(resp))
   // .catch(err => console.log(err));
   // return searchImg;
+}
+
+function resetSearch(ref) {
+  if (ref.children.length) {
+    // console.clear();
+    ref.innerHTML = '';
+  }
+  return;
 }
