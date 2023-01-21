@@ -9,22 +9,33 @@ import axios from 'axios';
 
 const searchForm = document.querySelector('#search-form');
 const gallery = document.querySelector('.gallery');
-const button = document.querySelector('.load-more');
+const buttonLoadMore = document.querySelector('.load-more');
 searchForm.addEventListener('submit', onSearch);
+// buttonLoadMore.addEventListener('click', onClick);
+
+//  let page = 1;
+
+//   function onClick() {
+//     page += 1
+//     fetchImg(page);
+//   }
+
+
 
 function onSearch(evt) {
   evt.preventDefault();
   const searchImg = evt.target.elements.searchQuery.value.trim();
   console.log(searchImg);
-  async function fetchImg() {
+
+  async function fetchImg(page = 1) {
     const BASE_URL = 'https://pixabay.com/api/';
     const keyApi = '32959525-8b9ed50037adb2599dd065ad6';
     const imageType = 'photo';
     const orientationType = 'horizontal';
     const safeSearch = 'true';
-    const perPage = '5';
+    const perPage = '40';
     const requestArr = await axios.get(
-      `${BASE_URL}?key=${keyApi}&per_page=${perPage}&q=${searchImg}&image_type=${imageType}&orientation=${orientationType}&safesearch=${safeSearch}}`
+      `${BASE_URL}?key=${keyApi}&per_page=${perPage}&page=${page}&q=${searchImg}&image_type=${imageType}&orientation=${orientationType}&safesearch=${safeSearch}}`
     );
 
     if (requestArr.data.hits.length === 0) {
@@ -76,7 +87,22 @@ function onSearch(evt) {
         .join('');
     }
   }
-  fetchImg();
+
+ 
+
+  fetchImg()
+    .then(data => {
+    buttonLoadMore.hidden = false;
+    });
+  
+  buttonLoadMore.addEventListener('click', onClick);
+
+  let page = 1;
+
+  function onClick() {
+    page += 1;
+    fetchImg(page);
+  }
   // .then(resp => console.log(resp))
   // .catch(err => console.log(err));
   // return searchImg;
