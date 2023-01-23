@@ -1,73 +1,102 @@
 import './css/styles.css';
 import Notiflix from 'notiflix';
 import axios from 'axios';
-// import SimpleLightbox from 'simplelightbox';
-// import 'simplelightbox/dist/simple-lightbox.min.css';
+import SimpleLightbox from 'simplelightbox';
+import 'simplelightbox/dist/simple-lightbox.min.css';
 
-// console.log(SimpleLightbox);
+console.log(SimpleLightbox);
 // console.log(axios);
 
 const searchForm = document.querySelector('#search-form');
 const gallery = document.querySelector('.gallery');
 const buttonLoadMore = document.querySelector('.load-more');
+
+const BASE_URL = 'https://pixabay.com/api/';
+const keyApi = '32959525-8b9ed50037adb2599dd065ad6';
+const imageType = 'photo';
+const orientationType = 'horizontal';
+const safeSearch = 'true';
+const perPage = '40';
+
 searchForm.addEventListener('submit', onSearch);
-// buttonLoadMore.addEventListener('click', onClick);
 
-//  let page = 1;
 
-//   function onClick() {
-//     page += 1
-//     fetchImg(page);
-//   }
-
-function onSearch(evt) {
+function onSearch(event) {
+  event.preventDefault();
   let page = 1;
-  resetSearch(gallery);
-  evt.preventDefault();
-  const searchImg = evt.target.elements.searchQuery.value.trim();
+  buttonLoadMore.hidden = false;
+  const searchImg = event.target.elements.searchQuery.value.trim();
+  if (!searchImg) {
+    return;
+  }
+  // resetSearch();
   console.log(searchImg);
 
-  const BASE_URL = 'https://pixabay.com/api/';
-  const keyApi = '32959525-8b9ed50037adb2599dd065ad6';
-  const imageType = 'photo';
-  const orientationType = 'horizontal';
-  const safeSearch = 'true';
-  const perPage = '40';
+  fetchImg(searchImg, page)
+    .then(data => {
+      const requestGallery = createGalleryMarkup(data.hits);
+      lightboxMarkup(requestGallery);
+      // gallery.insertAdjacentHTML('beforeend', requestGallery);
+    })
+    .catch(error => console.log(error));
 
-  async function fetchImg() {
-    const requestArr = await axios.get(
-      `${BASE_URL}?key=${keyApi}&per_page=${perPage}&page=${page}&q=${searchImg}&image_type=${imageType}&orientation=${orientationType}&safesearch=${safeSearch}}`
+  buttonLoadMore.addEventListener('click', onClick);
+  function onClick(event) {
+    event.preventDefault();
+    page += 1;
+    fetchImg(searchImg, page)
+      .then(data => {
+        const requestGallery = createGalleryMarkup(data.hits);
+        newLightbox()
+          gallery.insertAdjacentHTML('beforeend', requestGallery);
+        console.log('page', page);
+        
+        if (perPage * page > data.totalHits) {
+          buttonLoadMore.hidden = true;
+          Notiflix.Notify.info(
+            "We're sorry, but you've reached the end of search results."
+          );
+          return;
+        }
+      })
+      .catch(error => console.log(error));    
+  }  
+}
+
+async function fetchImg(searchImg, page) {
+  const requestArr = await axios.get(
+    `${BASE_URL}?key=${keyApi}&per_page=${perPage}&page=${page}&q=${searchImg}&image_type=${imageType}&orientation=${orientationType}&safesearch=${safeSearch}}`
+  );
+  console.log(requestArr);
+  
+  if (requestArr.data.hits.length === 0) {
+    buttonLoadMore.hidden = true;
+    Notiflix.Notify.warning(
+      'Sorry, there are no images matching your search query. Please try again.'
     );
+  }
+  page += 1;
+  return requestArr.data;
+}
 
-    if (requestArr.data.hits.length === 0) {
-      Notiflix.Notify.info(
-        'Sorry, there are no images matching your search query. Please try again.'
-      );
-      return;
-    }
+function createGalleryMarkup(array) {
+  return array
+    .map(
+      ({
+        webformatURL,
+        largeImageURL,
+        tags,
+        likes,
+        views,
+        comments,
+        downloads,
+      }) =>
+        `
+            <a class="gallery__item" href="${largeImageURL}">
+            <div class="photo-card">
 
-    console.log(requestArr);
+                <img class="gallery__image" src="${webformatURL}" alt="${tags}" loading="lazy" width="300px";/>
 
-    const galleryMarkup = createGalleryMarkup(requestArr.data.hits);
-    gallery.insertAdjacentHTML('beforeend', galleryMarkup);
-
-    function createGalleryMarkup(array) {
-      return array
-        .map(
-          ({
-            webformatURL,
-            largeImageURL,
-            tags,
-            likes,
-            views,
-            comments,
-            downloads,
-          }) =>
-            // `<a class="gallery__item" href="${largeImageURL}">
-            `<div class="photo-card">
-                       
-                <img src="${webformatURL}" alt="${tags}" loading="lazy" width="300px";/>
-              
                 <div class="info">
                   <p class="info-item">
                     <b>Likes ${likes}</b>
@@ -82,44 +111,36 @@ function onSearch(evt) {
                     <b>Downloads ${downloads}</b>
                   </p>
                 </div>
-            </div>`
-          // </a>`
-        )
-        .join('');
-    }
-  }
-
-  fetchImg().then(data => {
-    buttonLoadMore.hidden = false;
-  });
-
-  buttonLoadMore.addEventListener('click', onClick);
-
-  // let searchHits = 0;
-
-  function onClick() {
-    page += 1;
-    // searchHits += perPage;
-    fetchImg(page);
-    if (page * perPage >= 500) {
-      buttonLoadMore.hidden = true;
-      Notiflix.Notify.info(
-        "We're sorry, but you've reached the end of search results."
-      );
-
-      return;
-    }
-  }
-  // resetSearch(gallery);
-  // .then(resp => console.log(resp))
-  // .catch(err => console.log(err));
-  // return searchImg;
+            </div>
+          </a>
+          `
+    )
+    .join('');
 }
 
 function resetSearch(ref) {
   if (ref.children.length) {
-    // console.clear();
+    // reload();
     ref.innerHTML = '';
+    page = 1;
   }
   return;
+}
+
+function newLightbox() {
+  let lightbox = new SimpleLightbox('.gallery .gallery__item', {
+    scrollZoom: false,
+    
+    captionType: 'attr',
+    captionsData: 'alt',
+    captionPosition: 'bottom',
+    captionDelay: 250,
+  });
+  // lightbox.refresh();
+}
+
+function lightboxMarkup(markup) {
+  gallery.insertAdjacentHTML('beforeend', markup);
+
+  newLightbox();
 }
