@@ -128,6 +128,7 @@ function newLightbox() {
 
 function lightboxMarkup(markup) {
   gallery.insertAdjacentHTML('beforeend', markup);
+  // lightbox.refresh();
   newLightbox(markup);
   // lightbox.refresh();
 }
@@ -140,6 +141,7 @@ async function onClick() {
       requestGallery = createGalleryMarkup(data.hits);
       // gallery.insertAdjacentHTML('beforeend', requestGallery);
       lightboxMarkup(requestGallery);
+      // lightbox.refresh();
       console.log(page);
       if (perPage * page > data.totalHits) {
         buttonLoadMore.hidden = true;
@@ -150,4 +152,5 @@ async function onClick() {
       }
     })
     .catch(error => console.log(error));
+  // lightbox.refresh();
 }
