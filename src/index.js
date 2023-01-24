@@ -18,6 +18,12 @@ const orientationType = 'horizontal';
 const safeSearch = 'true';
 const perPage = '40';
 
+// let lightbox = new SimpleLightbox('.photo-card a', {
+//   captions: true,
+//   captionsData: 'alt',
+//   captionDelay: 250,
+// });
+
 searchForm.addEventListener('submit', onSearch);
 buttonLoadMore.addEventListener('click', onClick);
 
@@ -112,7 +118,7 @@ function newLightbox() {
 }
 
 function lightboxMarkup(markup) {
-  // gallery.insertAdjacentHTML('beforeend', markup);
+  gallery.insertAdjacentHTML('beforeend', markup);
   newLightbox(markup);
   // lightbox.refresh();
 }
