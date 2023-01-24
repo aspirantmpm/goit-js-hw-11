@@ -28,8 +28,8 @@ searchForm.addEventListener('submit', onSearch);
 buttonLoadMore.addEventListener('click', onClick);
 
 let page = 1;
-// let searchImg = '';
-// let requestGallery = '';
+let searchImg = '';
+let requestGallery = '';
 // let currentHits = 0;
 
 async function onSearch(event) {
