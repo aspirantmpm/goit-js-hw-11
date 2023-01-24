@@ -46,8 +46,7 @@ async function onSearch(event) {
     buttonLoadMore.hidden = true;
     return;
   }
-
-  // resetSearch();
+  
   console.log(searchImg);
   page = 1;
   await fetchImg(searchImg, page)
@@ -124,6 +123,7 @@ function newLightbox() {
     captionPosition: 'bottom',
     captionDelay: 250,
   });
+  lightbox.refresh();
 }
 
 function lightboxMarkup(markup) {
@@ -150,6 +150,7 @@ async function onClick() {
         );
         return;
       }
+      // lightbox.refresh();
     })
     .catch(error => console.log(error));
   // lightbox.refresh();
