@@ -27,6 +27,7 @@ let searchImg = '';
 async function onSearch(event) {
   event.preventDefault();
   gallery.innerHTML = '';
+  // lightbox.refresh();
   buttonLoadMore.hidden = false;
   searchImg = event.currentTarget.searchQuery.value.trim();
   if (!searchImg) {
@@ -38,9 +39,10 @@ async function onSearch(event) {
   page = 1;
   fetchImg(searchImg, page)
     .then(data => {
-      const requestGallery = createGalleryMarkup(data.hits);
+      requestGallery = createGalleryMarkup(data.hits);
       lightboxMarkup(requestGallery);
-      // gallery.insertAdjacentHTML('beforeend', requestGallery);
+      //
+      gallery.insertAdjacentHTML('beforeend', requestGallery);
     })
     .catch(error => console.log(error));
 }
@@ -58,7 +60,7 @@ async function fetchImg(searchImg, page) {
     );
   }
   page += 1;
-  return requestArr.data;  
+  return requestArr.data;
 }
 
 function createGalleryMarkup(array) {
@@ -76,9 +78,7 @@ function createGalleryMarkup(array) {
         `
             <a class="gallery__item" href="${largeImageURL}">
             <div class="photo-card">
-
                 <img class="gallery__image" src="${webformatURL}" alt="${tags}" loading="lazy" width="300px";/>
-
                 <div class="info">
                   <p class="info-item">
                     <b>Likes ${likes}</b>
@@ -100,7 +100,7 @@ function createGalleryMarkup(array) {
     .join('');
 }
 
-function newLightbox() {  
+function newLightbox() {
   let lightbox = new SimpleLightbox('.gallery .gallery__item', {
     scrollZoom: false,
     enableKeyboard: true,
@@ -108,29 +108,31 @@ function newLightbox() {
     captionsData: 'alt',
     captionPosition: 'bottom',
     captionDelay: 250,
-  });  
+  });
 }
 
 function lightboxMarkup(markup) {
-  gallery.insertAdjacentHTML('beforeend', markup);  
+  // gallery.insertAdjacentHTML('beforeend', markup);
   newLightbox(markup);
+  // lightbox.refresh();
 }
 
 async function onClick() {
   page += 1;
+  // lightbox.refresh();
   await fetchImg(searchImg, page)
     .then(data => {
-      const requestGallery = createGalleryMarkup(data.hits);
+      requestGallery = createGalleryMarkup(data.hits);
+      gallery.insertAdjacentHTML('beforeend', requestGallery);
       lightboxMarkup(requestGallery);
+console.log(page)
       if (perPage * page > data.totalHits) {
         buttonLoadMore.hidden = true;
         Notiflix.Notify.info(
           "We're sorry, but you've reached the end of search results."
         );
         return;
-      }      
+      }
     })
     .catch(error => console.log(error));
 }
-
-
