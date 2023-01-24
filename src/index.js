@@ -28,7 +28,9 @@ searchForm.addEventListener('submit', onSearch);
 buttonLoadMore.addEventListener('click', onClick);
 
 let page = 1;
-let searchImg = '';
+// let searchImg = '';
+// let requestGallery = '';
+// let currentHits = 0;
 
 async function onSearch(event) {
   event.preventDefault();
@@ -37,18 +39,25 @@ async function onSearch(event) {
   buttonLoadMore.hidden = false;
   searchImg = event.currentTarget.searchQuery.value.trim();
   if (!searchImg) {
+    buttonLoadMore.hidden = true;
+    return;
+  }
+  if (searchImg === '') {
+    buttonLoadMore.hidden = true;
     return;
   }
 
   // resetSearch();
   console.log(searchImg);
   page = 1;
-  fetchImg(searchImg, page)
+  await fetchImg(searchImg, page)
     .then(data => {
       requestGallery = createGalleryMarkup(data.hits);
       lightboxMarkup(requestGallery);
-      //
-      gallery.insertAdjacentHTML('beforeend', requestGallery);
+      // if (data.totalHits > 0) {
+      //   Notiflix.Notify.success('Hooray! We found ${data.totalHits} images.');
+      // }
+      // gallery.insertAdjacentHTML('beforeend', requestGallery);
     })
     .catch(error => console.log(error));
 }
@@ -129,9 +138,9 @@ async function onClick() {
   await fetchImg(searchImg, page)
     .then(data => {
       requestGallery = createGalleryMarkup(data.hits);
-      gallery.insertAdjacentHTML('beforeend', requestGallery);
+      // gallery.insertAdjacentHTML('beforeend', requestGallery);
       lightboxMarkup(requestGallery);
-console.log(page)
+      console.log(page);
       if (perPage * page > data.totalHits) {
         buttonLoadMore.hidden = true;
         Notiflix.Notify.info(
