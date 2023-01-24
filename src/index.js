@@ -19,19 +19,23 @@ const safeSearch = 'true';
 const perPage = '40';
 
 searchForm.addEventListener('submit', onSearch);
+buttonLoadMore.addEventListener('click', onClick);
 
+let page = 1;
+let searchImg = '';
 
-function onSearch(event) {
+async function onSearch(event) {
   event.preventDefault();
-  let page = 1;
+  gallery.innerHTML = '';
   buttonLoadMore.hidden = false;
-  const searchImg = event.target.elements.searchQuery.value.trim();
+  searchImg = event.currentTarget.searchQuery.value.trim();
   if (!searchImg) {
     return;
   }
+
   // resetSearch();
   console.log(searchImg);
-
+  page = 1;
   fetchImg(searchImg, page)
     .then(data => {
       const requestGallery = createGalleryMarkup(data.hits);
@@ -39,36 +43,14 @@ function onSearch(event) {
       // gallery.insertAdjacentHTML('beforeend', requestGallery);
     })
     .catch(error => console.log(error));
-
-  buttonLoadMore.addEventListener('click', onClick);
-  function onClick(event) {
-    event.preventDefault();
-    page += 1;
-    fetchImg(searchImg, page)
-      .then(data => {
-        const requestGallery = createGalleryMarkup(data.hits);
-        newLightbox()
-          gallery.insertAdjacentHTML('beforeend', requestGallery);
-        console.log('page', page);
-        
-        if (perPage * page > data.totalHits) {
-          buttonLoadMore.hidden = true;
-          Notiflix.Notify.info(
-            "We're sorry, but you've reached the end of search results."
-          );
-          return;
-        }
-      })
-      .catch(error => console.log(error));    
-  }  
 }
 
 async function fetchImg(searchImg, page) {
   const requestArr = await axios.get(
-    `${BASE_URL}?key=${keyApi}&per_page=${perPage}&page=${page}&q=${searchImg}&image_type=${imageType}&orientation=${orientationType}&safesearch=${safeSearch}}`
+    `${BASE_URL}?key=${keyApi}&per_page=${perPage}&q=${searchImg}&page=${page}&image_type=${imageType}&orientation=${orientationType}&safesearch=${safeSearch}}`
   );
   console.log(requestArr);
-  
+
   if (requestArr.data.hits.length === 0) {
     buttonLoadMore.hidden = true;
     Notiflix.Notify.warning(
@@ -76,7 +58,7 @@ async function fetchImg(searchImg, page) {
     );
   }
   page += 1;
-  return requestArr.data;
+  return requestArr.data;  
 }
 
 function createGalleryMarkup(array) {
@@ -118,29 +100,37 @@ function createGalleryMarkup(array) {
     .join('');
 }
 
-function resetSearch(ref) {
-  if (ref.children.length) {
-    // reload();
-    ref.innerHTML = '';
-    page = 1;
-  }
-  return;
-}
-
-function newLightbox() {
+function newLightbox() {  
   let lightbox = new SimpleLightbox('.gallery .gallery__item', {
     scrollZoom: false,
-    
+    enableKeyboard: true,
     captionType: 'attr',
     captionsData: 'alt',
     captionPosition: 'bottom',
     captionDelay: 250,
-  });
-  // lightbox.refresh();
+  });  
 }
 
 function lightboxMarkup(markup) {
-  gallery.insertAdjacentHTML('beforeend', markup);
-
-  newLightbox();
+  gallery.insertAdjacentHTML('beforeend', markup);  
+  newLightbox(markup);
 }
+
+async function onClick() {
+  page += 1;
+  await fetchImg(searchImg, page)
+    .then(data => {
+      const requestGallery = createGalleryMarkup(data.hits);
+      lightboxMarkup(requestGallery);
+      if (perPage * page > data.totalHits) {
+        buttonLoadMore.hidden = true;
+        Notiflix.Notify.info(
+          "We're sorry, but you've reached the end of search results."
+        );
+        return;
+      }      
+    })
+    .catch(error => console.log(error));
+}
+
+
